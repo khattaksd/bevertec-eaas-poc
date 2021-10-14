@@ -1,0 +1,33 @@
+version: '2'
+services:
+  vault:
+    image: vault
+    container_name: vault
+    ports:
+      - "8200:8200"
+    restart: unless-stopped
+    volumes:
+      - ./vault/logs:/vault/logs
+      - ./vault/file:/vault/file
+      - ./vault/config:/vault/config
+    cap_add:
+      - IPC_LOCK
+    environment:
+      - VAULT_ADDR=http://127.0.0.1:8200
+    entrypoint: vault server -config=/vault/config/vault.json
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: 'demo'   
+      MYSQL_USER: 'demo'
+      MYSQL_PASSWORD: 'demo'      
+      MYSQL_ROOT_PASSWORD: '1g2h3j'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - './mysql/db:/var/lib/mysql'
+      - './mysql/1.sql:/docker-entrypoint-initdb.d/1.sql'
