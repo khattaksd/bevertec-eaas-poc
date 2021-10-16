@@ -7,29 +7,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.core.VaultTransitOperations;
+import org.springframework.vault.support.VaultTransitContext;
 
 @Converter
 public class CipherConverter implements AttributeConverter<String, String> {
 
-    private static final String TRANSIT = "transit";
-
-    @Value("${vault.keyName}")
-    private String keyName;
+    private final VaultTransitContext context;
+    private final VaultTransitOperations ops;
+    private final String keyName;
 
     @Autowired
-    private VaultTemplate vaultTemplate;
+    public CipherConverter(@Value("${vault.keyName}") String vaultKeyName,
+            @Value("${vault.context}") String valutContext, VaultTemplate vaultTemplate) {
+        this.keyName = vaultKeyName;
+        this.context = VaultTransitContext.fromContext(valutContext.getBytes());
+        this.ops = vaultTemplate.opsForTransit();
+    }
 
     @Override
     public String convertToDatabaseColumn(final String plaintext) {
-        return this.getOps().encrypt(this.keyName, plaintext);
+        return this.ops.encrypt(this.keyName, plaintext.getBytes(), this.context);
     }
 
     @Override
     public String convertToEntityAttribute(final String ciphertext) {
-        return this.getOps().decrypt(this.keyName, ciphertext);
-    }
-
-    private VaultTransitOperations getOps() {
-        return this.vaultTemplate.opsForTransit(TRANSIT);
+        return new String(this.ops.decrypt(this.keyName, ciphertext, this.context));
     }
 }

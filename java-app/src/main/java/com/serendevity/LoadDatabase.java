@@ -1,11 +1,8 @@
 package com.serendevity;
 
-import com.github.javafaker.Business;
-import com.github.javafaker.Faker;
-import com.github.javafaker.Name;
+import java.time.LocalDate;
+import java.util.concurrent.ThreadLocalRandom;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -13,24 +10,46 @@ import org.springframework.stereotype.Component;
 @Component
 class LoadDatabase implements CommandLineRunner {
 
-    private static final Logger log = LoggerFactory.getLogger(LoadDatabase.class);
-
-    @Autowired
-    private PersonRepository personRepo;
     @Autowired
     private CardRepository cardRepo;
 
     @Override
     public void run(String... args) throws Exception {
-        Faker faker = new Faker();
-
         for (int i = 0; i < 100; i++) {
-            final Name n = faker.name();
-            final Person p = new Person(n.firstName(), faker.name().lastName());
-            log.info("Preloading " + personRepo.save(p));
-            final Business b = faker.business();
-            final Card c = new Card(p, b.creditCardNumber(), b.creditCardExpiry(), faker.number().digits(3));
-            log.info("Preloading " + cardRepo.save(c));
+            final String creditCardNumber = cc[i];
+            final String lastFourDigits = creditCardNumber.substring(creditCardNumber.length() - 4);
+            final Card c = new Card(creditCardNumber, this.creditCardExpiry(), lastFourDigits);
+            cardRepo.save(c);
         }
     }
+
+    private final String creditCardExpiry() {
+        int currYear = LocalDate.now().getYear()+1;
+        int year = ThreadLocalRandom.current().nextInt(currYear, currYear + 5);
+        int month = ThreadLocalRandom.current().nextInt(1, 13);
+        LocalDate ld = LocalDate.of(year, month, 1);
+        return ld.toString();
+    }
+
+    private static final String[] cc = new String[] { "5445847207987963", "36457949821219", "4508967103941158",
+            "4350975555058", "6223936646042864", "5457372186796546", "36092635390904", "6379151634456322",
+            "6223778970072616", "5518913214721076", "3568398727607778", "349830622043420", "67713197084361337",
+            "4420251984932", "5364998195280544", "36970023149349", "5431577076895312", "6224617866567801",
+            "4916690747442", "3536347761139791", "3555634553620625", "4035649116722", "5125070604258980",
+            "4844175111860989", "675956317019", "6221566665544052", "5573759848509078", "36142282848397",
+            "6228089905643140", "30326616448869", "379918301100265", "6762821457174512473", "5462145267370941",
+            "4310867932554925", "5199245413884728", "5554740534799291", "5592916568946321", "4940691135925114",
+            "5110027595541862", "376552474723083", "3538552665325879", "4026660126750408", "5438580142718032",
+            "6228791397008365", "670909572321336604", "6759080120921", "375734443016341", "5474481902804010",
+            "6223801199533976", "6222364752536929", "5520734848169052", "6389423560195457", "3572449423907717",
+            "6382016958215320", "6397054404827730", "6384916923981294", "6759059103502", "5234169619888118",
+            "5530896001911378", "36105621583579", "30282275265872", "630482054260882475", "3585463295057605",
+            "63047159213473264", "3570306879074024", "5539106365589054", "5418959637544059", "50380341078538",
+            "67711863769722588", "5018172475995771030", "6304519378101686", "5479394153100829", "30185846784695",
+            "6395352046097528", "4378407081669122", "4049570031906198", "5571978950620844", "4508444015046955",
+            "6222275662850756", "6709880385829847", "3580927559025313", "30286968859131", "6396381960145632",
+            "6709910297266015248", "340301362417140", "6222064324612873", "4841343383510756", "36576980305913",
+            "5596871915344702", "6709194864677736816", "3578736937562945", "5521725589266999", "5508681374021221",
+            "3558785401090358", "503802488392045", "36354519395890", "6709723458473366389", "676203564403",
+            "6221458367149580", "3554327793081895" };
 }

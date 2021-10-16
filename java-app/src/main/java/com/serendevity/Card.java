@@ -19,33 +19,19 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @ManyToOne(fetch = LAZY,  optional = false)
-    @JoinColumn(name = "person_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Person person;
-
     @Convert(converter = CipherConverter.class)
-    private String cardNumber;
+    private String cardNumber; // nnnn-nnnn-nnnn-nnnn
+    private String lastFourDigits; // nnnn
     private String cardExpiry; // mmdd
-    private String cardCvv; // nnn
 
     public Card() {
 
     }
 
-    public Card(Person person, String cardNumber, String cardExpiry, String cardCvv) {
-        this.person = person;
+    public Card(String cardNumber, String cardExpiry, String lastFourDigits) {
         this.cardNumber = cardNumber;
         this.cardExpiry = cardExpiry;
-        this.cardCvv = cardCvv;
-    }
-
-    public Person getPerson() {
-        return person;
-    }
-
-    public void setPerson(Person person) {
-        this.person = person;
+        this.lastFourDigits = lastFourDigits;
     }
 
     public String getCardNumber() {
@@ -64,11 +50,11 @@ public class Card {
         this.cardExpiry = cardExpiry;
     }
 
-    public String getCardCvv() {
-        return cardCvv;
+    public String getLastFourDigits() {
+        return lastFourDigits;
     }
 
-    public void setCardCvv(String cardCvv) {
-        this.cardCvv = cardCvv;
+    public void setLastFourDigits(String lastFourDigits) {
+        this.lastFourDigits = lastFourDigits;
     }
 }
